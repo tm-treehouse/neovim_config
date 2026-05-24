@@ -32,6 +32,15 @@ return {
       telescope.setup({
         defaults = {
           path_display = { "truncate" },
+          -- Disable treesitter highlighting in the preview pane. Telescope's
+          -- stable 0.1.x branch calls the old nvim-treesitter API (ft_to_lang),
+          -- which the treesitter "main" rewrite removed -- so leaving this on
+          -- throws "attempt to call field 'ft_to_lang' (a nil value)" on every
+          -- preview. Previews fall back to Vim's regex syntax highlighting,
+          -- which looks nearly identical in the small preview pane.
+          preview = {
+            treesitter = false,
+          },
           mappings = {
             i = {
               ["<C-j>"] = require("telescope.actions").move_selection_next,
