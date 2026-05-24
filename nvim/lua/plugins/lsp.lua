@@ -14,7 +14,7 @@
 return {
   {
     -- Mason installs LSP servers / tools without you touching the system.
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     cmd = "Mason",
     opts = {
       ui = { border = "rounded" },
@@ -22,9 +22,9 @@ return {
   },
   {
     -- Bridges mason and the native LSP: installs servers and auto-enables them.
-    "williamboman/mason-lspconfig.nvim",
+    "mason-org/mason-lspconfig.nvim",
     dependencies = {
-      "williamboman/mason.nvim",
+      "mason-org/mason.nvim",
       "neovim/nvim-lspconfig", -- provides the base configs under lsp/
     },
     opts = {
@@ -36,7 +36,7 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      "williamboman/mason-lspconfig.nvim",
+      "mason-org/mason-lspconfig.nvim",
       "hrsh7th/cmp-nvim-lsp", -- advertises completion capabilities to servers
     },
     config = function()

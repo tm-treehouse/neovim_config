@@ -56,7 +56,7 @@ return {
   {
     -- Ensures debugpy gets installed automatically via mason.
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    dependencies = { "williamboman/mason.nvim" },
+    dependencies = { "mason-org/mason.nvim" },
     opts = {
       ensure_installed = { "debugpy" },
     },
