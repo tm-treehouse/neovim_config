@@ -1,4 +1,32 @@
-# Neovim Keystroke Cheatsheet
+#Failed to run `config` for nvim-treesitter-textobjects
+
+/Users/torsten/.config/nvim/lua/plugins/treesitter.lua:38: module 'nvim-treesitter.configs' not found:
+        no field package.preload['nvim-treesitter.configs']
+        cache_loader: module 'nvim-treesitter.configs' not found
+        cache_loader_lib: module 'nvim-treesitter.configs' not found
+        no file './nvim-treesitter/configs.lua'
+        no file '/opt/homebrew/share/luajit-2.1/nvim-treesitter/configs.lua'
+        no file '/usr/local/share/lua/5.1/nvim-treesitter/configs.lua'
+        no file '/usr/local/share/lua/5.1/nvim-treesitter/configs/init.lua'
+        no file '/opt/homebrew/share/lua/5.1/nvim-treesitter/configs.lua'
+        no file '/opt/homebrew/share/lua/5.1/nvim-treesitter/configs/init.lua'
+        no file '/Users/torsten/.local/share/nvim/lazy-rocks/nvim-dap-python/share/lua/5.1/nvim-treesitter/configs.lua'
+        no file '/Users/torsten/.local/share/nvim/lazy-rocks/nvim-dap-python/share/lua/5.1/nvim-treesitter/configs/init.lua'
+        no file './nvim-treesitter/configs.so'
+        no file '/usr/local/lib/lua/5.1/nvim-treesitter/configs.so'
+        no file '/opt/homebrew/lib/lua/5.1/nvim-treesitter/configs.so'
+        no file '/usr/local/lib/lua/5.1/loadall.so'
+        no file '/Users/torsten/.local/share/nvim/lazy-rocks/nvim-dap-python/lib/lua/5.1/nvim-treesitter/configs.so'
+        no file '/Users/torsten/.local/share/nvim/lazy-rocks/nvim-dap-python/lib64/lua/5.1/nvim-treesitter/configs.so'
+        no file './nvim-treesitter.so'
+        no file '/usr/local/lib/lua/5.1/nvim-treesitter.so'
+        no file '/opt/homebrew/lib/lua/5.1/nvim-treesitter.so'
+        no file '/usr/local/lib/lua/5.1/loadall.so'
+        no file '/Users/torsten/.local/share/nvim/lazy-rocks/nvim-dap-python/lib/lua/5.1/nvim-treesitter.so'
+        no file '/Users/torsten/.local/share/nvim/lazy-rocks/nvim-dap-python/lib64/lua/5.1/nvim-treesitter.so'
+
+# stacktrace:
+  - ~/.config/nvim/lua/plugins/treesitter.lua:38 _in_ **config** Neovim Keystroke Cheatsheet
 
 > **Leader key = `Space`**
 > Throughout this document, `<leader>` means the **Space** bar. So `<leader>ff`
