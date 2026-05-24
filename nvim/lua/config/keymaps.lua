@@ -3,6 +3,8 @@
 
 local map = vim.keymap.set
 
+map("n", "<C-q>", "<cmd>q<CR>", { desc = "Quit window" })
+
 -- Clear search highlight with Esc
 map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear search highlight" })
 
