@@ -1,0 +1,159 @@
+diff --git a/nvim/lua/plugins/terminal.lua b/nvim/lua/plugins/terminal.lua
+new file mode 100644
+index 0000000..cc137a7
+--- /dev/null
++++ b/nvim/lua/plugins/terminal.lua
+@@ -0,0 +1,75 @@
++-- ~/.config/nvim/lua/plugins/terminal.lua
++-- Terminal integration via toggleterm.nvim: toggleable floating and split
++-- terminals, similar to VS Code's integrated terminal panel. Bound under the
++-- <leader>t prefix.
++
++return {
++  {
++    "akinsho/toggleterm.nvim",
++    version = "*",
++    keys = {
++      -- Quick toggles for each layout. The default <C-\> also toggles the last
++      -- used terminal (set in opts below).
++      { "<leader>tf", "<cmd>ToggleTerm direction=float<CR>", desc = "Terminal: float" },
++      { "<leader>th", "<cmd>ToggleTerm direction=horizontal<CR>", desc = "Terminal: horizontal split" },
++      { "<leader>tv", "<cmd>ToggleTerm direction=vertical<CR>", desc = "Terminal: vertical split" },
++      { "<leader>tt", "<cmd>ToggleTerm<CR>", desc = "Terminal: toggle last" },
++    },
++    opts = {
++      -- <C-\> toggles the terminal from almost anywhere (works in normal/insert).
++      open_mapping = [[<c-\>]],
++      direction = "float",          -- default layout when no direction is given
++      float_opts = { border = "rounded" },
++      size = function(term)
++        -- Sensible sizes: ~40% height for horizontal, ~40% width for vertical.
++        if term.direction == "horizontal" then
++          return math.floor(vim.o.lines * 0.4)
++        elseif term.direction == "vertical" then
++          return math.floor(vim.o.columns * 0.4)
++        end
++      end,
++      shade_terminals = true,
++      start_in_insert = true,
++      persist_size = true,
++      persist_mode = true,
++    },
++    config = function(_, opts)
++      require("toggleterm").setup(opts)
++
++      -- Terminal-mode keymaps: make moving out of the terminal feel natural,
++      -- so you're not stuck having to remember <C-\><C-n> to escape.
++      local function term_keymaps()
++        local function tmap(lhs, rhs, desc)
++          vim.keymap.set("t", lhs, rhs, { buffer = 0, desc = desc })
++        end
++        tmap("<Esc><Esc>", [[<C-\><C-n>]], "Exit terminal mode")
++        tmap("<C-h>", [[<Cmd>wincmd h<CR>]], "Go to left window")
++        tmap("<C-j>", [[<Cmd>wincmd j<CR>]], "Go to lower window")
++        tmap("<C-k>", [[<Cmd>wincmd k<CR>]], "Go to upper window")
++        tmap("<C-l>", [[<Cmd>wincmd l<CR>]], "Go to right window")
++      end
++      vim.api.nvim_create_autocmd("TermOpen", {
++        pattern = "term://*",
++        group = vim.api.nvim_create_augroup("user_toggleterm", { clear = true }),
++        callback = term_keymaps,
++      })
++
++      -- A dedicated lazygit terminal, if lazygit is installed. <leader>tg opens
++      -- a full-screen floating git UI — one of the nicest VS Code-like touches.
++      local ok, Terminal = pcall(function()
++        return require("toggleterm.terminal").Terminal
++      end)
++      if ok and vim.fn.executable("lazygit") == 1 then
++        local lazygit = Terminal:new({
++          cmd = "lazygit",
++          direction = "float",
++          float_opts = { border = "rounded" },
++          hidden = true,
++        })
++        vim.keymap.set("n", "<leader>tg", function()
++          lazygit:toggle()
++        end, { desc = "Terminal: lazygit" })
++      end
++    end,
++  },
++}
+diff --git a/nvim/lua/plugins/ui.lua b/nvim/lua/plugins/ui.lua
+index 89a6879..b37dbed 100644
+--- a/nvim/lua/plugins/ui.lua
++++ b/nvim/lua/plugins/ui.lua
+@@ -4,8 +4,8 @@
+ 
+ return {
+   {
+-    -- File explorer sidebar (like VS Code's Explorer). Toggle with <leader>e... wait,
+-    -- that's diagnostics — we use <leader>fe / <C-n> here to avoid the clash.
++    -- File explorer sidebar (like VS Code's Explorer). Toggle with <C-n> or
++    -- <leader>fe; reveal the current file with <leader>fE.
+     "nvim-neo-tree/neo-tree.nvim",
+     branch = "v3.x",
+     dependencies = {
+@@ -17,18 +17,60 @@ return {
+       { "<C-n>", "<cmd>Neotree toggle<CR>", desc = "Toggle file explorer" },
+       { "<leader>fe", "<cmd>Neotree toggle<CR>", desc = "Toggle file explorer" },
+       { "<leader>fE", "<cmd>Neotree reveal<CR>", desc = "Reveal current file in tree" },
++      { "<leader>ge", "<cmd>Neotree float git_status<CR>", desc = "Git status (float)" },
++      { "<leader>be", "<cmd>Neotree toggle show buffers right<CR>", desc = "Buffer explorer" },
+     },
+     opts = {
++      close_if_last_window = true, -- don't leave a lone tree window when closing buffers
++      popup_border_style = "rounded",
++      enable_git_status = true,
++      enable_diagnostics = true,   -- show LSP diagnostics in the tree
++      sources = { "filesystem", "buffers", "git_status" },
++      source_selector = {
++        -- Tabs at the top of the tree to switch Files / Buffers / Git, like
++        -- VS Code's activity-bar sections.
++        winbar = true,
++        sources = {
++          { source = "filesystem", display_name = " Files" },
++          { source = "buffers", display_name = " Buffers" },
++          { source = "git_status", display_name = " Git" },
++        },
++      },
++      default_component_configs = {
++        indent = {
++          with_expanders = true, -- show expand/collapse arrows on folders
++          expander_collapsed = "",
++          expander_expanded = "",
++        },
++        git_status = {
++          symbols = {
++            added = "✚", modified = "", deleted = "✖", renamed = "󰁕",
++            untracked = "", ignored = "", unstaged = "󰄱", staged = "", conflict = "",
++          },
++        },
++      },
+       filesystem = {
+         follow_current_file = { enabled = true },
+         use_libuv_file_watcher = true, -- live-update on external file changes
++        group_empty_dirs = true,
+         filtered_items = {
+           hide_dotfiles = false,
+           hide_gitignored = false,
+-          hide_by_name = { "__pycache__", ".pytest_cache", ".mypy_cache" },
++          hide_by_name = { "__pycache__", ".pytest_cache", ".mypy_cache", ".git" },
++        },
++      },
++      window = {
++        width = 32,
++        mappings = {
++          ["<space>"] = "none",          -- don't shadow the leader key inside the tree
++          ["P"] = { "toggle_preview", config = { use_float = true } }, -- peek a file
++          ["H"] = "toggle_hidden",
++          ["o"] = "open",
++          ["/"] = "fuzzy_finder",        -- filter the tree by typing, VS Code-style
++          ["<C-x>"] = "open_split",
++          ["<C-v>"] = "open_vsplit",
+         },
+       },
+-      window = { width = 32 },
+     },
+   },
+   {

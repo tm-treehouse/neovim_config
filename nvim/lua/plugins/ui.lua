@@ -4,8 +4,8 @@
 
 return {
   {
-    -- File explorer sidebar (like VS Code's Explorer). Toggle with <leader>e... wait,
-    -- that's diagnostics — we use <leader>fe / <C-n> here to avoid the clash.
+    -- File explorer sidebar (like VS Code's Explorer). Toggle with <C-n> or
+    -- <leader>fe; reveal the current file with <leader>fE.
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
     dependencies = {
@@ -17,18 +17,60 @@ return {
       { "<C-n>", "<cmd>Neotree toggle<CR>", desc = "Toggle file explorer" },
       { "<leader>fe", "<cmd>Neotree toggle<CR>", desc = "Toggle file explorer" },
       { "<leader>fE", "<cmd>Neotree reveal<CR>", desc = "Reveal current file in tree" },
+      { "<leader>ge", "<cmd>Neotree float git_status<CR>", desc = "Git status (float)" },
+      { "<leader>be", "<cmd>Neotree toggle show buffers right<CR>", desc = "Buffer explorer" },
     },
     opts = {
+      close_if_last_window = true, -- don't leave a lone tree window when closing buffers
+      popup_border_style = "rounded",
+      enable_git_status = true,
+      enable_diagnostics = true,   -- show LSP diagnostics in the tree
+      sources = { "filesystem", "buffers", "git_status" },
+      source_selector = {
+        -- Tabs at the top of the tree to switch Files / Buffers / Git, like
+        -- VS Code's activity-bar sections.
+        winbar = true,
+        sources = {
+          { source = "filesystem", display_name = " Files" },
+          { source = "buffers", display_name = " Buffers" },
+          { source = "git_status", display_name = " Git" },
+        },
+      },
+      default_component_configs = {
+        indent = {
+          with_expanders = true, -- show expand/collapse arrows on folders
+          expander_collapsed = "",
+          expander_expanded = "",
+        },
+        git_status = {
+          symbols = {
+            added = "✚", modified = "", deleted = "✖", renamed = "󰁕",
+            untracked = "", ignored = "", unstaged = "󰄱", staged = "", conflict = "",
+          },
+        },
+      },
       filesystem = {
         follow_current_file = { enabled = true },
         use_libuv_file_watcher = true, -- live-update on external file changes
+        group_empty_dirs = true,
         filtered_items = {
           hide_dotfiles = false,
           hide_gitignored = false,
-          hide_by_name = { "__pycache__", ".pytest_cache", ".mypy_cache" },
+          hide_by_name = { "__pycache__", ".pytest_cache", ".mypy_cache", ".git" },
         },
       },
-      window = { width = 32 },
+      window = {
+        width = 32,
+        mappings = {
+          ["<space>"] = "none",          -- don't shadow the leader key inside the tree
+          ["P"] = { "toggle_preview", config = { use_float = true } }, -- peek a file
+          ["H"] = "toggle_hidden",
+          ["o"] = "open",
+          ["/"] = "fuzzy_finder",        -- filter the tree by typing, VS Code-style
+          ["<C-x>"] = "open_split",
+          ["<C-v>"] = "open_vsplit",
+        },
+      },
     },
   },
   {
