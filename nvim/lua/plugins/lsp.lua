@@ -28,7 +28,12 @@ return {
       "neovim/nvim-lspconfig", -- provides the base configs under lsp/
     },
     opts = {
-      ensure_installed = { "pyright", "ruff", "lua_ls" },
+      -- clangd is on mason's registry. The SystemVerilog servers (svls,
+      -- verible) are NOT installed via mason here -- they're standalone
+      -- binaries you install yourself (see the svls/verible config blocks in
+      -- lsp.lua for instructions), so they're intentionally omitted from this
+      -- list to avoid install failures.
+      ensure_installed = { "pyright", "ruff", "lua_ls", "clangd" },
       automatic_enable = true, -- runs vim.lsp.enable() for installed servers
     },
   },
@@ -106,6 +111,52 @@ return {
           },
         },
       })
+
+      -- clangd: C/C++ language server. Installed via mason. For accurate
+      -- cross-file analysis, generate a compile_commands.json in your project
+      -- (CMake: -DCMAKE_EXPORT_COMPILE_COMMANDS=ON; Make: use `bear -- make`).
+      vim.lsp.config("clangd", {
+        cmd = {
+          "clangd",
+          "--background-index",
+          "--clang-tidy",            -- inline clang-tidy lints
+          "--header-insertion=iwyu", -- include-what-you-use header insertion
+          "--completion-style=detailed",
+          "--function-arg-placeholders",
+        },
+        init_options = { fallbackFlags = { "-std=c++20" } },
+      })
+
+      -- SystemVerilog support. svls and verible are standalone binaries, NOT
+      -- mason packages, so install them yourself:
+      --   svls:    cargo install svls   (or `snap install svls`)
+      --   verible: download from https://github.com/chipsalliance/verible
+      --            releases; the LSP binary is `verible-verilog-ls` and the
+      --            formatter is `verible-verilog-format`.
+      -- Each is enabled only if its binary is on your PATH, so a missing tool
+      -- won't throw errors -- you just won't get that server until installed.
+      --
+      -- Roles: svls gives on-the-fly lint diagnostics (configured via a
+      -- .svls.toml at your repo root); verible provides navigation, hover,
+      -- autofix code actions, and formatting. Running both is common.
+
+      if vim.fn.executable("svls") == 1 then
+        vim.lsp.config("svls", {
+          cmd = { "svls" },
+          filetypes = { "systemverilog", "verilog" },
+          root_markers = { ".svls.toml", ".git" },
+        })
+        vim.lsp.enable("svls")
+      end
+
+      if vim.fn.executable("verible-verilog-ls") == 1 then
+        vim.lsp.config("verible", {
+          cmd = { "verible-verilog-ls", "--rules_config_search" },
+          filetypes = { "systemverilog", "verilog" },
+          root_markers = { ".git", ".rules.verible_lint" },
+        })
+        vim.lsp.enable("verible")
+      end
 
       -- Buffer-local keymaps, set only once a server attaches to the buffer.
       vim.api.nvim_create_autocmd("LspAttach", {

@@ -13,6 +13,8 @@ return {
         "python", "lua", "vim", "vimdoc", "query",
         "json", "yaml", "toml", "markdown", "markdown_inline",
         "bash", "dockerfile", "gitignore", "html", "css",
+        "c", "cpp", "verilog", -- C/C++ and (System)Verilog; the `verilog`
+                               -- parser covers both Verilog and SystemVerilog.
       },
       auto_install = true,
       highlight = { enable = true },
