@@ -28,6 +28,7 @@ opt.inccommand = "split" -- live-preview :s/foo/bar substitutions as you type
 -- UI
 opt.termguicolors = true   -- 24-bit color (needed for modern themes)
 opt.signcolumn = "yes"     -- always show sign column so text doesn't jump
+opt.cursorline = true
 opt.scrolloff = 8          -- keep 8 lines visible above/below cursor
 opt.sidescrolloff = 8
 opt.wrap = false
@@ -36,6 +37,7 @@ opt.splitright = true
 opt.splitbelow = true
 
 -- Behavior
+opt.mouse = "a"
 opt.clipboard = "unnamedplus"  -- use system clipboard for yank/paste
 opt.undofile = true            -- persistent undo across sessions
 opt.undodir = vim.fn.stdpath("state") .. "/undo" -- explicit, guaranteed-to-exist below
